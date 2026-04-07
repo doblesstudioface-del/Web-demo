@@ -35,4 +35,4 @@ def analizar_estudio(url):
 
 # PRUEBA REAL: Usa una web de un arquitecto de Guatemala
 # Ejemplo: "https://www.studioseis.com.gt"
-analizar_estudio("https://www.doblesstudio.com")
+analizar_estudio("https://www.modulor.com.gt")
