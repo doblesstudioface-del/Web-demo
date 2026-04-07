@@ -1,38 +1,28 @@
 import requests
 
 def analizar_estudio(url):
-    print(f"--- DOBLE S STUDIO: Auditando {url} ---")
+    # Limpiamos la URL para que Google no se confunda
+    url_limpia = url.replace("https://", "").replace("http://", "").split('/')[0]
+    final_url = f"https://{url_limpia}"
     
-    # Esta es la URL de la API simplificada
-    api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&strategy=mobile"
+    print(f"--- DOBLE S STUDIO: Auditando {final_url} ---")
     
-    # Le decimos a Google que somos un navegador real
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-
+    api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={final_url}&strategy=mobile"
+    
     try:
-        response = requests.get(api_url, headers=headers)
-        data = response.json()
-
-        # Si Google nos da el puntaje, lo mostramos
-        if 'lighthouseResult' in data:
-            score = data['lighthouseResult']['categories']['performance']['score'] * 100
-            print(f"PUNTUACIÓN DE VELOCIDAD: {int(score)}/100")
-            
+        res = requests.get(api_url).json()
+        
+        if 'lighthouseResult' in res:
+            score = res['lighthouseResult']['categories']['performance']['score'] * 100
+            print(f"PUNTUACIÓN: {int(score)}/100")
             if score < 50:
-                print("ESTADO: CRÍTICO. ¡Excelente oportunidad de venta!")
-            else:
-                print("ESTADO: Web optimizada.")
+                print("OPORTUNIDAD: La web es demasiado lenta.")
         else:
-            # Si Google responde pero sin datos, nos dirá por qué
-            error_msg = data.get('error', {}).get('message', 'Error desconocido')
-            print(f"Google no pudo analizar esta web: {error_msg}")
-            print("Sugerencia: Prueba con una URL que empiece con https://")
+            # Esto nos dirá qué está fallando realmente
+            print(f"Google dice: {res.get('error', {}).get('message', 'Error de formato en URL')}")
 
     except Exception as e:
         print(f"Error técnico: {e}")
 
-# PRUEBA REAL: Usa una web de un arquitecto de Guatemala
-# Ejemplo: "https://www.studioseis.com.gt"
-analizar_estudio("https://precisioninmobiliaria.com/")
+# Probando con la inmobiliaria
+analizar_estudio("https://precisioninmobiliaria.com")
