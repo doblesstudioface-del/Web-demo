@@ -1,16 +1,28 @@
 name: Scanner de Doble S Studio
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
 
 jobs:
   run_scanner:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
       - name: Configurar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
       - name: Instalar herramientas
         run: pip install requests
+
       - name: Ejecutar Auditoría
         run: python scanner.py
+
+      - name: Guardar Reporte Excel
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-de-prospeccion
+          path: reporte_ventas.csv
