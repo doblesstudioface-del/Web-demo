@@ -1,28 +1,34 @@
 import requests
+import csv
+import os
 
-def analizar_estudio(url):
-    # Limpiamos la URL para que Google no se confunda
+def analizar_y_guardar(url):
     url_limpia = url.replace("https://", "").replace("http://", "").split('/')[0]
     final_url = f"https://{url_limpia}"
     
     print(f"--- DOBLE S STUDIO: Auditando {final_url} ---")
-    
     api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={final_url}&strategy=mobile"
     
     try:
         res = requests.get(api_url).json()
-        
         if 'lighthouseResult' in res:
-            score = res['lighthouseResult']['categories']['performance']['score'] * 100
-            print(f"PUNTUACIÓN: {int(score)}/100")
-            if score < 50:
-                print("OPORTUNIDAD: La web es demasiado lenta.")
+            score = int(res['lighthouseResult']['categories']['performance']['score'] * 100)
+            
+            # Guardar en Excel (CSV)
+            archivo_existe = os.path.isfile('reporte_ventas.csv')
+            with open('reporte_ventas.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                if not archivo_existe:
+                    writer.writerow(['Web', 'Puntaje', 'Estado'])
+                
+                estado = "CRÍTICO (Vender)" if score < 50 else "Aceptable"
+                writer.writerow([final_url, score, estado])
+                
+            print(f"PUNTUACIÓN: {score}/100 - Guardado en reporte_ventas.csv")
         else:
-            # Esto nos dirá qué está fallando realmente
-            print(f"Google dice: {res.get('error', {}).get('message', 'Error de formato en URL')}")
-
+            print("Error: Cuota de Google agotada. Espera un poco.")
     except Exception as e:
-        print(f"Error técnico: {e}")
+        print(f"Error: {e}")
 
-# Probando con la inmobiliaria
-analizar_estudio("https://precisioninmobiliaria.com")
+# Aquí puedes poner la lista de webs que quieras
+analizar_y_guardar("https://precisioninmobiliaria.com")
