@@ -1,34 +1,39 @@
 import requests
-import csv
-import os
+import pandas as pd
 
-def analizar_y_guardar(url):
-    url_limpia = url.replace("https://", "").replace("http://", "").split('/')[0]
-    final_url = f"https://{url_limpia}"
+# CONFIGURACIÓN DE DOBLE S STUDIO
+API_KEY = "AIzaSyBNwQeltWhe854R6s7I0VNCxyF25yA0cB4"
+SEARCH_ENGINE_ID = "643aa78d2bd524499"
+QUERY = "estudio de arquitectura Guatemala" # Puedes cambiar esto por cualquier negocio
+
+def buscar_prospectos():
+    print(f"🚀 DOBLE S STUDIO: Iniciando búsqueda de '{QUERY}'...")
+    url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={SEARCH_ENGINE_ID}&q={QUERY}"
     
-    print(f"--- DOBLE S STUDIO: Auditando {final_url} ---")
-    api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={final_url}&strategy=mobile"
-    
-    try:
-        res = requests.get(api_url).json()
-        if 'lighthouseResult' in res:
-            score = int(res['lighthouseResult']['categories']['performance']['score'] * 100)
+    response = requests.get(url)
+    if response.status_code == 200:
+        resultados = response.json().get('items', [])
+        prospectos = []
+        
+        for item in resultados:
+            nombre = item.get('title')
+            link = item.get('link')
             
-            # Guardar en Excel (CSV)
-            archivo_existe = os.path.isfile('reporte_ventas.csv')
-            with open('reporte_ventas.csv', mode='a', newline='') as file:
-                writer = csv.writer(file)
-                if not archivo_existe:
-                    writer.writerow(['Web', 'Puntaje', 'Estado'])
-                
-                estado = "CRÍTICO (Vender)" if score < 50 else "Aceptable"
-                writer.writerow([final_url, score, estado])
-                
-            print(f"PUNTUACIÓN: {score}/100 - Guardado en reporte_ventas.csv")
-        else:
-            print("Error: Cuota de Google agotada. Espera un poco.")
-    except Exception as e:
-        print(f"Error: {e}")
+            # Simulación de auditoría de velocidad (esto lo conectaremos a PageSpeed después)
+            # Por ahora, nos trae la lista base
+            prospectos.append({
+                "Nombre": nombre,
+                "Sitio Web": link,
+                "Estado": "Pendiente de Auditoría"
+            })
+        
+        # Guardar en Excel
+        df = pd.DataFrame(prospectos)
+        df.to_excel("prospectos_doble_s.xlsx", index=False)
+        print("✅ ¡Éxito! Lista guardada en 'prospectos_doble_s.xlsx'")
+    else:
+        print(f"❌ Error: {response.status_code}")
 
-# Aquí puedes poner la lista de webs que quieras
-analizar_y_guardar("https://precisioninmobiliaria.com")
+if __name__ == "__main__":
+    buscar_prospectos()
+
