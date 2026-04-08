@@ -16,7 +16,7 @@ jobs:
           python-version: '3.9'
 
       - name: Instalar herramientas
-        run: pip install requests
+        run: pip install requests pandas
 
       - name: Ejecutar Auditoría
         run: python scanner.py
