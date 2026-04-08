@@ -1,22 +1,17 @@
-name: Scanner Doble S
+name: Scanner
 on:
   workflow_dispatch:
-
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - setup-python:
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-      - name: Install
-        run: pip install requests pandas
-      - name: Run
-        run: python main.py
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - run: pip install requests pandas
+      - run: python main.py
+      - uses: actions/upload-artifact@v4
         with:
-          name: Prospectos-Doble-S
+          name: lista-dobles
           path: lista_prospectos.csv
