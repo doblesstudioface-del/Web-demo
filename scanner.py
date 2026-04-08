@@ -1,39 +1,45 @@
 import requests
 import pandas as pd
+import os
 
-# CONFIGURACIÓN DE DOBLE S STUDIO
 API_KEY = "AIzaSyBNwQeltWhe854R6s7I0VNCxyF25yA0cB4"
-SEARCH_ENGINE_ID = "643aa78d2bd524499"
-QUERY = "estudio de arquitectura Guatemala" # Puedes cambiar esto por cualquier negocio
+CX = "643aa78d2bd524499"
 
-def buscar_prospectos():
-    print(f"🚀 DOBLE S STUDIO: Iniciando búsqueda de '{QUERY}'...")
-    url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={SEARCH_ENGINE_ID}&q={QUERY}"
+def auditar_velocidad(url):
+    # Conectamos con Google PageSpeed
+    api_url = f"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&key={API_KEY}"
+    try:
+        res = requests.get(api_url, timeout=15).json()
+        # Sacamos el puntaje de 0 a 100
+        score = res['lighthouseResult']['categories']['performance']['score'] * 100
+        return f"{score}%"
+    except:
+        return "Error en auditoría"
+
+def iniciar_caceria():
+    print("🚀 DOBLE S STUDIO: Buscando arquitectos con web lenta...")
+    search_url = f"https://www.googleapis.com/customsearch/v1?q=estudio+arquitectura+guatemala&key={API_KEY}&cx={CX}"
     
-    response = requests.get(url)
-    if response.status_code == 200:
-        resultados = response.json().get('items', [])
-        prospectos = []
+    res = requests.get(search_url).json()
+    items = res.get('items', [])
+    
+    lista_final = []
+    for i in items:
+        nombre = i['title']
+        web = i['link']
+        print(f"🔎 Analizando: {nombre}")
+        velocidad = auditar_velocidad(web)
         
-        for item in resultados:
-            nombre = item.get('title')
-            link = item.get('link')
-            
-            # Simulación de auditoría de velocidad (esto lo conectaremos a PageSpeed después)
-            # Por ahora, nos trae la lista base
-            prospectos.append({
-                "Nombre": nombre,
-                "Sitio Web": link,
-                "Estado": "Pendiente de Auditoría"
-            })
-        
-        # Guardar en Excel
-        df = pd.DataFrame(prospectos)
-        df.to_excel("prospectos_doble_s.xlsx", index=False)
-        print("✅ ¡Éxito! Lista guardada en 'prospectos_doble_s.xlsx'")
-    else:
-        print(f"❌ Error: {response.status_code}")
+        lista_final.append({
+            "Estudio": nombre,
+            "Sitio Web": web,
+            "Rendimiento": velocidad
+        })
+    
+    # Guardamos los resultados
+    df = pd.DataFrame(lista_final)
+    df.to_csv("prospectos_doble_s.csv", index=False) # Usamos CSV que es más ligero y no falla
+    print("✅ Archivo 'prospectos_doble_s.csv' creado con éxito.")
 
 if __name__ == "__main__":
-    buscar_prospectos()
-
+    iniciar_caceria()
