@@ -6,7 +6,7 @@ jobs:
   run_scanner:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
+      - name: Checkout del codigo
         uses: actions/checkout@v4
 
       - name: Configurar Python
@@ -17,5 +17,5 @@ jobs:
       - name: Instalar herramientas
         run: pip install requests pandas
 
-      - name: Ejecutar Auditoría
+      - name: Ejecutar Auditoria
         run: python main.py
