@@ -1,21 +1,22 @@
-name: Scanner de Doble S Studio
+name: Scanner Doble S
 on:
   workflow_dispatch:
 
 jobs:
-  run_scanner:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del codigo
-        uses: actions/checkout@v4
-
-      - name: Configurar Python
+      - uses: actions/checkout@v4
+      - setup-python:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-
-      - name: Instalar herramientas
+      - name: Install
         run: pip install requests pandas
-
-      - name: Ejecutar Auditoria
+      - name: Run
         run: python main.py
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Prospectos-Doble-S
+          path: lista_prospectos.csv
